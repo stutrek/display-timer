@@ -1,11 +1,11 @@
 import type { HomeAssistant } from 'preact-homeassistant';
 import { useCallbackStable } from 'preact-homeassistant';
-import type { __CardClass__Config } from './__CardClass__';
+import type { DisplayTimerConfig } from './DisplayTimer';
 
 interface EditorProps {
   hass: HomeAssistant;
-  config: __CardClass__Config;
-  onConfigChanged: (config: __CardClass__Config) => void;
+  config: DisplayTimerConfig;
+  onConfigChanged: (config: DisplayTimerConfig) => void;
 }
 
 // Use HA's modern <ha-form> with selectors. HA renders the right control for
@@ -24,9 +24,9 @@ const LABELS: Record<string, string> = {
   entity: 'Sensor entity',
 };
 
-export function __CardClass__Editor({ hass, config, onConfigChanged }: EditorProps) {
+export function DisplayTimerEditor({ hass, config, onConfigChanged }: EditorProps) {
   const handleValueChanged = useCallbackStable((e: Event) => {
-    const next = (e as CustomEvent).detail?.value as Partial<__CardClass__Config> | undefined;
+    const next = (e as CustomEvent).detail?.value as Partial<DisplayTimerConfig> | undefined;
     if (!next) return;
     onConfigChanged({ ...config, ...next });
   });

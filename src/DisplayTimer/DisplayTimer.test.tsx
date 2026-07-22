@@ -2,9 +2,9 @@ import { render, screen } from '@testing-library/preact';
 import { HAProvider } from 'preact-homeassistant';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createMockHass, noopSubscribe } from '../__test-utils__/mockHass';
-import { __CardClass__ } from './__CardClass__';
+import { DisplayTimer } from './DisplayTimer';
 
-describe('__CardClass__', () => {
+describe('DisplayTimer', () => {
   beforeEach(() => {
     localStorage.clear();
   });
@@ -25,7 +25,7 @@ describe('__CardClass__', () => {
 
     render(
       <HAProvider hass={hass} subscribeToEntity={noopSubscribe}>
-        <__CardClass__ config={{ entity: 'sensor.temperature' }} />
+        <DisplayTimer config={{ entity: 'sensor.temperature' }} />
       </HAProvider>,
     );
 
@@ -39,7 +39,7 @@ describe('__CardClass__', () => {
 
     render(
       <HAProvider hass={hass} subscribeToEntity={noopSubscribe}>
-        <__CardClass__ config={{ entity: '' }} />
+        <DisplayTimer config={{ entity: '' }} />
       </HAProvider>,
     );
 

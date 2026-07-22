@@ -1,17 +1,17 @@
 import { HACard, useEntity } from 'preact-homeassistant';
-import './__CardClass__.styles';
+import './DisplayTimer.styles';
 
-export interface __CardClass__Config {
+export interface DisplayTimerConfig {
   entity: string;
 }
 
-export function __CardClass__({ config }: { config: __CardClass__Config }) {
+export function DisplayTimer({ config }: { config: DisplayTimerConfig }) {
   const entity = useEntity(config.entity);
 
   if (!config.entity) {
     return (
       <HACard>
-        <div class="card-content __CARD_TAG____empty">
+        <div class="card-content display-timer__empty">
           No entity configured. Pick one in the card editor.
         </div>
       </HACard>
@@ -21,7 +21,7 @@ export function __CardClass__({ config }: { config: __CardClass__Config }) {
   if (!entity) {
     return (
       <HACard>
-        <div class="card-content __CARD_TAG____empty">
+        <div class="card-content display-timer__empty">
           Waiting for <code>{config.entity}</code>...
         </div>
       </HACard>
@@ -30,16 +30,16 @@ export function __CardClass__({ config }: { config: __CardClass__Config }) {
 
   return (
     <HACard align="top">
-      <div class="card-content __CARD_TAG__">
-        <h2 class="__CARD_TAG____heading">{entity.attributes?.friendly_name ?? config.entity}</h2>
-        <p class="__CARD_TAG____entity-id">{entity.entity_id}</p>
-        <p class="__CARD_TAG____state">
+      <div class="card-content display-timer">
+        <h2 class="display-timer__heading">{entity.attributes?.friendly_name ?? config.entity}</h2>
+        <p class="display-timer__entity-id">{entity.entity_id}</p>
+        <p class="display-timer__state">
           {entity.state}
           {entity.attributes?.unit_of_measurement
             ? ` ${entity.attributes.unit_of_measurement}`
             : ''}
         </p>
-        <pre class="__CARD_TAG____attributes">{JSON.stringify(entity.attributes, null, 2)}</pre>
+        <pre class="display-timer__attributes">{JSON.stringify(entity.attributes, null, 2)}</pre>
       </div>
     </HACard>
   );

@@ -13,10 +13,10 @@ export default defineConfig({
   plugins: [preact()],
   build: {
     lib: {
-      entry: path.resolve(dirname, 'src/__CardClass__/index.tsx'),
-      name: '__CardClass__',
+      entry: path.resolve(dirname, 'src/DisplayTimer/index.tsx'),
+      name: 'DisplayTimer',
       formats: ['es'],
-      fileName: () => '__CARD_TAG__.js',
+      fileName: () => 'display-timer.js',
     },
     rollupOptions: {
       external: [],

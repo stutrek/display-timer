@@ -1,16 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { HAProvider, getAllStyles } from 'preact-homeassistant';
-import { __CardClass__ } from '../__CardClass__/__CardClass__';
+import { DisplayTimer } from '../DisplayTimer/DisplayTimer';
 import { createMockHass, noopSubscribe } from '../__test-utils__/mockHass';
 import '../__test-utils__/ha-stubs';
 
-const meta: Meta<typeof __CardClass__> = {
-  title: '__CardClass__',
-  component: __CardClass__,
+const meta: Meta<typeof DisplayTimer> = {
+  title: 'DisplayTimer',
+  component: DisplayTimer,
 };
 
 export default meta;
-type Story = StoryObj<typeof __CardClass__>;
+type Story = StoryObj<typeof DisplayTimer>;
 
 // Inject the styles registered via the css`` helper. registerPreactCard does
 // this automatically inside the shadow root in production; stories render
@@ -20,7 +20,7 @@ const wrap = (entities: Record<string, any>, entity: string) => {
   return (
     <HAProvider hass={hass} subscribeToEntity={noopSubscribe}>
       <style>{getAllStyles()}</style>
-      <__CardClass__ config={{ entity }} />
+      <DisplayTimer config={{ entity }} />
     </HAProvider>
   );
 };

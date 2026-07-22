@@ -1,5 +1,5 @@
 {
-  "name": "__CARD_TAG__",
+  "name": "display-timer",
   "private": true,
   "version": "0.1.1",
   "description": "Starter template for Home Assistant cards built with preact-homeassistant",

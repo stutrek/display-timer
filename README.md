@@ -20,9 +20,9 @@ pnpm dev
 
 ## What's included
 
-- **Starter card** — `src/__CardClass__/` — displays a sensor entity and its attributes as JSON. Has a visual editor for picking the sensor. The `__CardClass__` / `__CARD_TAG__` / `__CARD_NAME__` tokens are filled in automatically on first push (see [Rename for your card](#rename-for-your-card)).
+- **Starter card** — `src/DisplayTimer/` — displays a sensor entity and its attributes as JSON. Has a visual editor for picking the sensor. The `DisplayTimer` / `display-timer` / `Display Timer` tokens are filled in automatically on first push (see [Rename for your card](#rename-for-your-card)).
 - **Storybook** — `.storybook/` — preview your card states in isolation with a mock `hass` object and HA CSS-variable defaults.
-- **Vitest tests** — `src/__CardClass__/__CardClass__.test.tsx` — minimal smoke test that the component renders.
+- **Vitest tests** — `src/DisplayTimer/DisplayTimer.test.tsx` — minimal smoke test that the component renders.
 - **HA stubs** — `src/__test-utils__/ha-stubs.ts` — drop-in stand-ins for `<ha-card>`, `<ha-select>`, `<ha-list-item>`, `<ha-icon>` so the card works in Storybook and tests.
 - **Mock hass factory** — `src/__test-utils__/mockHass.ts` — `createMockHass({ entities })` and helpers for tests/stories.
 - **Biome** — formatter + linter. Replaces ESLint + Prettier.
@@ -40,18 +40,18 @@ The template ships with three placeholder tokens:
 
 | Token            | Meaning                            | Derived from repo name `my-weather-card` |
 | ---------------- | ---------------------------------- | ---------------------------------------- |
-| `__CARD_TAG__`   | kebab tag (custom-element, filename, CSS block) | `my-weather-card`             |
-| `__CardClass__`  | PascalCase identifier (TS class/function/file/dir names) | `MyWeatherCard`      |
-| `__CARD_NAME__`  | Title-case display name (HACS, card picker)     | `My Weather Card`             |
+| `display-timer`   | kebab tag (custom-element, filename, CSS block) | `my-weather-card`             |
+| `DisplayTimer`  | PascalCase identifier (TS class/function/file/dir names) | `MyWeatherCard`      |
+| `Display Timer`  | Title-case display name (HACS, card picker)     | `My Weather Card`             |
 
 On the **first push to `main`** after you create your repo from this template,
 `.github/workflows/template-cleanup.yml` derives all three from your repo name,
-substitutes them across the codebase, renames the `src/__CardClass__/` directory
+substitutes them across the codebase, renames the `src/DisplayTimer/` directory
 and its files, then commits the result and deletes itself. No manual rename step.
 
 If you'd rather do it by hand, the workflow is just a `find … sed` + `mv` —
 search-and-replace the three tokens above and rename anything in `src/` that
-still contains `__CardClass__`. You can then delete `.github/workflows/template-cleanup.yml`.
+still contains `DisplayTimer`. You can then delete `.github/workflows/template-cleanup.yml`.
 
 Once cleanup has run, replace the body of `src/<YourCard>/` with your own card.
 

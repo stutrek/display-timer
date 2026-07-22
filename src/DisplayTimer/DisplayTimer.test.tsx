@@ -1,40 +1,57 @@
-import { render, screen } from '@testing-library/preact';
+import { fireEvent, render, screen } from '@testing-library/preact';
 import { HAProvider } from 'preact-homeassistant';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMockHass, noopSubscribe } from '../__test-utils__/mockHass';
 import { DisplayTimer } from './DisplayTimer';
+
+const idleTimer = {
+  'timer.game': {
+    entity_id: 'timer.game',
+    state: 'idle',
+    attributes: { friendly_name: 'Game Time', duration: '0:00:00' },
+  },
+};
 
 describe('DisplayTimer', () => {
   beforeEach(() => {
     localStorage.clear();
   });
 
-  it('shows the entity name and state when configured', () => {
-    const hass = createMockHass({
-      entities: {
-        'sensor.temperature': {
-          entity_id: 'sensor.temperature',
-          state: '72',
-          attributes: {
-            friendly_name: 'Living Room Temperature',
-            unit_of_measurement: '°F',
-          },
-        },
-      },
-    });
+  it('shows preset buttons for an idle timer', () => {
+    const hass = createMockHass({ entities: idleTimer });
 
     render(
       <HAProvider hass={hass} subscribeToEntity={noopSubscribe}>
-        <DisplayTimer config={{ entity: 'sensor.temperature' }} />
+        <DisplayTimer config={{ entity: 'timer.game', presets: '15,30,45' }} />
       </HAProvider>,
     );
 
-    expect(screen.getByText('Living Room Temperature')).toBeTruthy();
-    expect(screen.getByText('sensor.temperature')).toBeTruthy();
-    expect(screen.getByText(/72\s*°F/)).toBeTruthy();
+    expect(screen.getByText('Game Time')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /15/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /30/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /45/ })).toBeTruthy();
   });
 
-  it('shows a helpful message when no entity is configured', () => {
+  it('calls timer.start with the tapped preset duration', () => {
+    const callService = vi.fn().mockResolvedValue(undefined);
+    const hass = createMockHass({ entities: idleTimer });
+    hass.callService = callService;
+
+    render(
+      <HAProvider hass={hass} subscribeToEntity={noopSubscribe}>
+        <DisplayTimer config={{ entity: 'timer.game', presets: '15,30,45' }} />
+      </HAProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /30/ }));
+
+    expect(callService).toHaveBeenCalledWith('timer', 'start', {
+      entity_id: 'timer.game',
+      duration: '00:30:00',
+    });
+  });
+
+  it('shows a helpful message when no timer is configured', () => {
     const hass = createMockHass();
 
     render(
@@ -43,6 +60,6 @@ describe('DisplayTimer', () => {
       </HAProvider>,
     );
 
-    expect(screen.getByText(/No entity configured/)).toBeTruthy();
+    expect(screen.getByText(/No timer configured/)).toBeTruthy();
   });
 });

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { HAProvider, getAllStyles } from 'preact-homeassistant';
-import { DisplayTimer } from '../DisplayTimer/DisplayTimer';
+import { DisplayTimer, type DisplayTimerConfig } from '../DisplayTimer/DisplayTimer';
 import { createMockHass, noopSubscribe } from '../__test-utils__/mockHass';
 import '../__test-utils__/ha-stubs';
 
@@ -14,62 +14,87 @@ type Story = StoryObj<typeof DisplayTimer>;
 
 // Inject the styles registered via the css`` helper. registerPreactCard does
 // this automatically inside the shadow root in production; stories render
-// outside that root, so we have to do it manually here.
-const wrap = (entities: Record<string, any>, entity: string) => {
+// outside that root, so we have to do it manually here. (The overlay also
+// injects them again into document.body via its portal — that's expected.)
+const wrap = (entities: Record<string, any>, config: DisplayTimerConfig) => {
   const hass = createMockHass({ entities });
   return (
     <HAProvider hass={hass} subscribeToEntity={noopSubscribe}>
       <style>{getAllStyles()}</style>
-      <DisplayTimer config={{ entity }} />
+      <DisplayTimer config={config} />
     </HAProvider>
   );
 };
 
-export const Default: Story = {
+const iso = (msFromNow: number) => new Date(Date.now() + msFromNow).toISOString();
+
+export const Idle: Story = {
   render: () =>
     wrap(
       {
-        'sensor.temperature': {
-          entity_id: 'sensor.temperature',
-          state: '72',
-          attributes: {
-            friendly_name: 'Living Room Temperature',
-            unit_of_measurement: '°F',
-            device_class: 'temperature',
-            state_class: 'measurement',
-          },
+        'timer.game': {
+          entity_id: 'timer.game',
+          state: 'idle',
+          attributes: { friendly_name: 'Game Time', duration: '0:00:00' },
         },
       },
-      'sensor.temperature',
+      { entity: 'timer.game', presets: '15,30,45' },
     ),
 };
 
-export const NoEntityConfigured: Story = {
-  render: () => wrap({}, ''),
-};
-
-export const EntityNotFound: Story = {
-  render: () => wrap({}, 'sensor.missing'),
-};
-
-export const RichAttributes: Story = {
+export const Active: Story = {
   render: () =>
     wrap(
       {
-        'sensor.battery': {
-          entity_id: 'sensor.battery',
-          state: '84',
+        'timer.game': {
+          entity_id: 'timer.game',
+          state: 'active',
           attributes: {
-            friendly_name: 'Phone Battery',
-            unit_of_measurement: '%',
-            device_class: 'battery',
-            state_class: 'measurement',
-            icon: 'mdi:battery-80',
-            is_charging: false,
-            battery_health: 'good',
+            friendly_name: 'Game Time',
+            duration: '0:30:00',
+            remaining: '0:18:00',
+            finishes_at: iso(18 * 60 * 1000),
           },
         },
       },
-      'sensor.battery',
+      { entity: 'timer.game', presets: '15,30,45' },
+    ),
+};
+
+export const Paused: Story = {
+  render: () =>
+    wrap(
+      {
+        'timer.game': {
+          entity_id: 'timer.game',
+          state: 'paused',
+          attributes: {
+            friendly_name: 'Game Time',
+            duration: '0:30:00',
+            remaining: '0:12:34',
+          },
+        },
+      },
+      { entity: 'timer.game', presets: '15,30,45' },
+    ),
+};
+
+// A timer whose countdown has already elapsed trips the "time's up" flash.
+export const Done: Story = {
+  render: () =>
+    wrap(
+      {
+        'timer.game': {
+          entity_id: 'timer.game',
+          state: 'active',
+          attributes: {
+            friendly_name: 'Game Time',
+            duration: '0:30:00',
+            remaining: '0:00:00',
+            finishes_at: iso(-1000),
+          },
+        },
+      },
+      { entity: 'timer.game', presets: '15,30,45' },
     ),
 };

@@ -5,8 +5,9 @@ import { DisplayTimerEditor } from './DisplayTimerEditor';
 registerPreactCard<DisplayTimerConfig>({
   type: 'display-timer',
   name: 'Display Timer',
-  description: 'A starter card that displays a sensor entity and its attributes',
+  description:
+    'A fullscreen countdown card for a timer helper — presets, progress ring, and a done-flash',
   Component: DisplayTimer,
   ConfigComponent: DisplayTimerEditor,
-  getStubConfig: () => ({ entity: '' }),
+  getStubConfig: () => ({ entity: '', presets: '15,30,45' }),
 });

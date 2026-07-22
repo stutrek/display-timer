@@ -1,0 +1,80 @@
+name: Template cleanup
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    if: github.event.repository.is_template == false && github.event.head_commit.message == 'Initial commit'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Derive names from the repo
+        id: names
+        run: |
+          TAG='${{ github.event.repository.name }}'
+          CLASS=$(echo "$TAG" | awk -F- '{for(i=1;i<=NF;i++){$i=toupper(substr($i,1,1)) tolower(substr($i,2))}}1' OFS='')
+          NAME=$(echo "$TAG" | awk -F- '{for(i=1;i<=NF;i++){$i=toupper(substr($i,1,1)) tolower(substr($i,2))}}1' OFS=' ')
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "class=$CLASS" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Replace placeholders and rename files
+        env:
+          CARD_TAG: ${{ steps.names.outputs.tag }}
+          CARD_CLASS: ${{ steps.names.outputs.class }}
+          CARD_NAME: ${{ steps.names.outputs.name }}
+        run: |
+          set -euo pipefail
+
+          # Replace tokens in file contents.
+          # __CardClass__ first so it doesn't get partially eaten by __CARD_NAME__.
+          while IFS= read -r -d '' file; do
+            sed -i \
+              -e "s/__CardClass__/${CARD_CLASS}/g" \
+              -e "s/__CARD_TAG__/${CARD_TAG}/g" \
+              -e "s/__CARD_NAME__/${CARD_NAME}/g" \
+              "$file"
+          done < <(find . -type f \
+            -not -path './.git/*' \
+            -not -path './.github/*' \
+            -not -path './node_modules/*' \
+            -not -path './dist/*' \
+            -not -path './storybook-static/*' \
+            -print0)
+
+          # Rename directories containing __CardClass__ (shallowest first so parents
+          # exist before children are moved into them).
+          find . -type d -name '*__CardClass__*' \
+            -not -path './.git/*' \
+            -not -path './node_modules/*' \
+            | sort \
+            | while read -r path; do
+              new=$(echo "$path" | sed "s/__CardClass__/${CARD_CLASS}/g")
+              mv "$path" "$new"
+            done
+
+          # Rename files containing __CardClass__ (directories already renamed above).
+          find . -type f -name '*__CardClass__*' \
+            -not -path './.git/*' \
+            -not -path './node_modules/*' \
+            | while read -r path; do
+              new=$(echo "$path" | sed "s/__CardClass__/${CARD_CLASS}/g")
+              mv "$path" "$new"
+            done
+
+      - name: Remove this workflow
+        run: rm .github/workflows/template-cleanup.yml
+
+      - name: Commit and push
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'chore: apply template cleanup'
+          git push

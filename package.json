@@ -1,0 +1,69 @@
+{
+  "name": "__CARD_TAG__",
+  "private": true,
+  "version": "0.1.1",
+  "description": "Starter template for Home Assistant cards built with preact-homeassistant",
+  "author": {
+    "name": "Stu Kabakoff",
+    "email": "stutrek@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stutrek/preact-homeassistant-template.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "lint": "biome check src",
+    "lint:fix": "biome check --write src",
+    "format": "biome format --write src",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged && pnpm typecheck"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@biomejs/biome",
+      "esbuild",
+      "simple-git-hooks"
+    ]
+  },
+  "dependencies": {
+    "home-assistant-js-websocket": "^9.6.0",
+    "preact": "^10.27.2",
+    "preact-homeassistant": "^0.5.1"
+  },
+  "dependenciesMeta": {
+    "preact-homeassistant": {
+      "injected": true
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@mdi/js": "^7.4.47",
+    "@preact/preset-vite": "^2.10.2",
+    "@storybook/addon-docs": "^10.1.11",
+    "@storybook/preact-vite": "^10.1.11",
+    "@testing-library/preact": "^3.2.4",
+    "@types/node": "^24.10.1",
+    "jsdom": "^26.1.0",
+    "lint-staged": "^17.0.5",
+    "simple-git-hooks": "^2.13.1",
+    "storybook": "^10.1.11",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4",
+    "vitest": "^4.0.17"
+  }
+}

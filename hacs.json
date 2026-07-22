@@ -1,0 +1,5 @@
+{
+  "name": "__CARD_NAME__",
+  "render_readme": true,
+  "filename": "__CARD_TAG__.js"
+}

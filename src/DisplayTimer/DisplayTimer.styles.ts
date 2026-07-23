@@ -6,14 +6,27 @@ import { css } from 'preact-homeassistant';
 // injection can't collide with Home Assistant's own DOM.
 css`
   .display-timer {
-    padding: 16px;
     font-family: var(--primary-font-family, Roboto, system-ui, sans-serif);
+  }
+
+  .display-timer__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  /* Tight / one-button-wide (width toggled in JS): drop the padding so the
+     buttons fill the card. A JS class, not a container query, for older iOS. */
+  .display-timer--tight .display-timer__inner {
+    padding: 0;
+    gap: 6px;
   }
 
   .display-timer__heading {
     font-size: 1.1em;
     font-weight: 600;
-    margin: 0 0 12px;
+    margin: 0;
     color: var(--primary-text-color, inherit);
   }
 
@@ -31,9 +44,9 @@ css`
   }
 
   .display-timer__preset {
-    flex: 1 1 0;
-    min-width: 72px;
-    min-height: 64px;
+    flex: 1 1 56px;
+    min-width: 56px;
+    min-height: 56px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -44,8 +57,9 @@ css`
     background: var(--primary-color, #3b82f6);
     color: var(--text-primary-color, #fff);
     font-family: inherit;
-    font-size: 1.6em;
+    font-size: clamp(1.1rem, 6vw, 1.7rem);
     font-weight: 600;
+    line-height: 1.1;
     cursor: pointer;
     transition: filter 0.15s;
   }
@@ -100,9 +114,14 @@ css`
   }
 
   /* ---- fullscreen overlay ---- */
+  /* Fixed positioning keeps it within the visible screen. When scoped to HA's
+     dashboard container the JS pins top/left/width/height to that element's
+     on-screen rect; --viewport (Storybook/tests) just fills the viewport.
+     The JS also sets --dt-min to the overlay's smaller side so the dial +
+     countdown size off it via calc() — no container queries, so it works back
+     to older Safari/iOS. */
   .display-timer-overlay {
     position: fixed;
-    inset: 0;
     z-index: 2147483000;
     display: flex;
     flex-direction: column;
@@ -117,10 +136,18 @@ css`
     -webkit-tap-highlight-color: transparent;
   }
 
+  .display-timer-overlay--viewport {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
   .display-timer-overlay__dial {
     position: relative;
-    width: min(78vw, 62vh);
-    height: min(78vw, 62vh);
+    /* 78% of the overlay's smaller dimension — always fits the screen. */
+    width: calc(var(--dt-min, 300px) * 0.78);
+    height: calc(var(--dt-min, 300px) * 0.78);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -128,11 +155,15 @@ css`
 
   .display-timer-overlay__ring {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    /* Start the arc at 12 o'clock. */
-    transform: rotate(-90deg);
+    /* Start at 12 o'clock and empty clockwise. rotate(-90deg) puts the arc's
+       start at the top; scaleY(-1) mirrors vertically to reverse the SVG's
+       default winding (so it depletes clockwise) while keeping the start on the
+       vertical axis — i.e. still at the top. */
+    transform: rotate(-90deg) scaleY(-1);
   }
 
   .display-timer-overlay__track {
@@ -146,12 +177,15 @@ css`
     stroke: var(--primary-color, #3b82f6);
     stroke-width: 7;
     stroke-linecap: round;
-    transition: stroke-dashoffset 1s linear;
+    /* stroke-dashoffset + its transition are set imperatively in JS: one
+       linear transition per run, spanning the whole remaining time. */
   }
 
   .display-timer-overlay__time {
     position: relative;
-    font-size: min(26vw, 20vh);
+    /* ~20% of the overlay's short side (0.78 dial * 0.25) so MM:SS with double
+       digits fits inside the ring. */
+    font-size: calc(var(--dt-min, 300px) * 0.2);
     font-weight: 700;
     line-height: 1;
     font-variant-numeric: tabular-nums;
@@ -194,28 +228,23 @@ css`
     color: var(--error-color, #db4437);
   }
 
-  .display-timer-overlay__done-label {
-    font-size: min(9vw, 7vh);
-    font-weight: 700;
-  }
-
-  /* ---- time's-up flash ---- */
+  /* ---- time's-up flash: black <-> white ---- */
   @keyframes display-timer-flash {
     0%,
     49% {
-      background: var(--error-color, #db4437);
-      color: #fff;
+      background: #fff;
+      color: #000;
     }
     50%,
     100% {
-      background: var(--card-background-color, #101014);
-      color: var(--error-color, #db4437);
+      background: #000;
+      color: #fff;
     }
   }
 
   .display-timer-overlay.is-done {
     cursor: pointer;
-    /* Hard strobe: hold red, jump to dark at the midpoint, repeat. */
+    /* Hard strobe: hold white, jump to black at the midpoint, repeat. */
     animation: display-timer-flash 0.9s linear infinite;
   }
 
@@ -226,11 +255,8 @@ css`
   @media (prefers-reduced-motion: reduce) {
     .display-timer-overlay.is-done {
       animation: none;
-      background: var(--error-color, #db4437);
+      background: #000;
       color: #fff;
-    }
-    .display-timer-overlay__progress {
-      transition: none;
     }
   }
 `;

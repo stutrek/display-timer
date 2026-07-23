@@ -24,5 +24,15 @@ Object.defineProperty(globalThis, 'localStorage', {
   configurable: true,
 });
 
+// jsdom has no ResizeObserver; useWidth/useResizeObserver need one. A no-op
+// stub is enough — tests don't rely on live resize measurements.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver;
+}
+
 // Register lightweight stand-ins for the HA web components used in tests.
 import './ha-stubs';

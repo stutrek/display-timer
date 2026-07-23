@@ -38,7 +38,7 @@ export const Idle: Story = {
           attributes: { friendly_name: 'Game Time', duration: '0:00:00' },
         },
       },
-      { entity: 'timer.game', presets: '15,30,45' },
+      { entity: 'timer.game', name: 'Game Time', presets: '15,30,45' },
     ),
 };
 
@@ -75,7 +75,7 @@ export const Paused: Story = {
           },
         },
       },
-      { entity: 'timer.game', presets: '15,30,45' },
+      { entity: 'timer.game', name: 'Game Time', presets: '15,30,45' },
     ),
 };
 

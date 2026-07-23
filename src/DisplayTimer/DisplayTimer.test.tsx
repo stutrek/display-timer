@@ -26,10 +26,27 @@ describe('DisplayTimer', () => {
       </HAProvider>,
     );
 
-    expect(screen.getByText('Game Time')).toBeTruthy();
     expect(screen.getByRole('button', { name: /15/ })).toBeTruthy();
     expect(screen.getByRole('button', { name: /30/ })).toBeTruthy();
     expect(screen.getByRole('button', { name: /45/ })).toBeTruthy();
+  });
+
+  it('shows the configured title only when set', () => {
+    const hass = createMockHass({ entities: idleTimer });
+
+    const { rerender } = render(
+      <HAProvider hass={hass} subscribeToEntity={noopSubscribe}>
+        <DisplayTimer config={{ entity: 'timer.game' }} />
+      </HAProvider>,
+    );
+    expect(screen.queryByRole('heading')).toBeNull();
+
+    rerender(
+      <HAProvider hass={hass} subscribeToEntity={noopSubscribe}>
+        <DisplayTimer config={{ entity: 'timer.game', name: 'Game Time' }} />
+      </HAProvider>,
+    );
+    expect(screen.getByRole('heading', { name: 'Game Time' })).toBeTruthy();
   });
 
   it('calls timer.start with the tapped preset duration', () => {
